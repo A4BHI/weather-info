@@ -31,7 +31,7 @@ Honestly? Just for the nostalgia and fun. I know it's outdated and not suitable 
 - HTML, CSS, JS
 
 ## 🖼️ Screenshots:
-| Homepage |Ip Details |
+| Weather  |Ip Details |
 |----------|-----------------|
 | ![Weather](app.png) | ![IP Details Forwarded To Telegram](tele.png) |
 
