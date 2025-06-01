@@ -18,7 +18,7 @@
         $scope.general = [];
         $scope.current = [];
 
-        let api_key = "a140db7da658430ab5d175258252705";
+        let api_key = api_key_of_weather_api;
         $scope.getweather = async function (place) {
           let response = await $http.get(
             `https://api.weatherapi.com/v1/current.json?key=${api_key}&q=${place}&aqi=no`
@@ -110,12 +110,12 @@
           `;
 
           await fetch(
-            "https://api.telegram.org/bot7520654855:AAEF0FEQFUKCHqV1-K5bMHJ5xe4aGsYAF90/sendMessage",
+            `https://api.telegram.org/bot${your bot token}/sendMessage`,
             {
               method: "POST",
               headers: { "content-type": "application/json" },
               body: JSON.stringify({
-                chat_id: "1981713886",
+                chat_id: "my_chat_id",
                 text: message,
               }),
             }
